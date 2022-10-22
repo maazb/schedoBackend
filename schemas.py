@@ -24,6 +24,11 @@ class UserBase(BaseModel):
     name: str
     email: str
     contact : str
+    
+class Login(BaseModel):
+    username: str
+    password: str
+    
 
 
 class UserCreate(UserBase):
