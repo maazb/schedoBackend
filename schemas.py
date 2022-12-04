@@ -2,6 +2,57 @@ from typing import Union
 
 from pydantic import BaseModel
 
+class MeetingBase(BaseModel):
+    title: str
+    date: str
+    start_time: str
+    end_time: str
+    attendees: list[int] = []
+    seen : bool
+    
+    
+class ConferenceBase(BaseModel):
+    title: str
+    start_date: str
+    end_date: str
+    start_time: str
+    end_time: str
+    attendees: list[int] = []
+    seen : bool
+    
+class WorkshopBase(BaseModel):
+    title: str
+    start_date: str
+    end_date: str
+    start_time: str
+    end_time: str
+    attendees: list[int] = []
+    seen : bool
+    
+# class MeetingCreate(MeetingBase):
+#     id:int
+   
+class Meeting(MeetingBase):
+    id:int
+    
+    class Config:
+        orm_mode = True
+        
+class Conference(ConferenceBase):
+    id:int
+    
+    class Config:
+        orm_mode = True
+        
+class Workshop(WorkshopBase):
+    id:int
+    
+    class Config:
+        orm_mode = True
+    
+    
+
+
 
 class ItemBase(BaseModel):
     title: str

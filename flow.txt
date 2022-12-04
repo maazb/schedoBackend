@@ -1,0 +1,6 @@
+New Table Add Model
+
+1st: model
+2nd: schemas
+3rd: crud
+4th: main

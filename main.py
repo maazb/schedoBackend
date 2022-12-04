@@ -62,6 +62,10 @@ async def get_current_active_user(current_user: models.User = Depends(get_curren
     return current_user
 
 
+#*********************
+#Users / Login / Auth
+#*********************
+
 @app.post("/token", response_model=authentication.Token,)
 async def login_for_access_token(form_data: schemas.Login, db: Session = Depends(get_db)):
     user = authenticate_user( form_data.username, form_data.password,db)
@@ -77,26 +81,10 @@ async def login_for_access_token(form_data: schemas.Login, db: Session = Depends
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-# @app.post("/token")
-# async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-#     user = crud.get_user_by_email(db=db, email=form_data.username)
-#     if not user:
-#         raise HTTPException(status_code=400, detail="Incorrect username or password")
-#     #user = UserInDB(**user)
-#     #hashed_password = fake_hash_password(form_data.password)
-#     password = form_data.password
-#     if not password == user.password:
-#         raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-#     return {"access_token": user.email, "token_type": "bearer"}
 
 
 
-@app.get("/users/me")
-async def read_users_me(current_user: models.User = Depends(get_current_user)):
-    return current_user
-
-@app.post("/users/", response_model=schemas.User)
+@app.post("/users/CreateUser", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
@@ -108,15 +96,69 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return response
 
 
+
+
 @app.get("/users/", response_model=list[schemas.User])
 def read_users(token: str = Depends(authentication.oauth2_scheme) ,skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     # return users
-    return {"token" : token}
+    return users
+
+
+
+@app.get("/users/me")
+async def read_users_me(current_user: models.User = Depends(get_current_user)):
+    return current_user
+
+
+
+
+
+
+#*********************
+#Meetings
+#*********************
+
+
+
+@app.post("/meeting/CreateMeeting", response_model=schemas.Meeting)
+def create_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
+    responseBody =  crud.create_meeting(db=db, meeting=meeting)
+    return responseBody
+
+
+
+
+#*********************
+#Conferences
+#*********************
+
+
+@app.post("/conference/CreateConference", response_model=schemas.Conference)
+def create_conference( conference: schemas.ConferenceBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
+    responseBody =  crud.create_conference(db=db, conference=conference)
+    return responseBody
+
+
+
+#*********************
+#Workshops
+#*********************
+
+
+@app.post("/workshop/CreateWorkshop", response_model=schemas.Workshop)
+def create_workshop( workshop: schemas.WorkshopBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
+    responseBody =  crud.create_workshop(db=db, workshop=workshop)
+    return responseBody
+
+
+
+
+
 
 
 @app.get("/users/{user_id}", response_model=schemas.User)
-def read_user(user_id: int, db: Session = Depends(get_db)):
+def read_user( user_id: int,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
