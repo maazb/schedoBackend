@@ -66,7 +66,7 @@ async def get_current_active_user(current_user: models.User = Depends(get_curren
 #Users / Login / Auth
 #*********************
 
-@app.post("/token", response_model=authentication.Token,)
+@app.post("/token", response_model=authentication.Token,tags=["Users"])
 async def login_for_access_token(form_data: schemas.Login, db: Session = Depends(get_db)):
     user = authenticate_user( form_data.username, form_data.password,db)
     if not user:
@@ -84,7 +84,7 @@ async def login_for_access_token(form_data: schemas.Login, db: Session = Depends
 
 
 
-@app.post("/users/CreateUser", response_model=schemas.User)
+@app.post("/users/CreateUser", response_model=schemas.User,tags=["Users"])
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
@@ -98,15 +98,24 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 
-@app.get("/users/", response_model=list[schemas.User])
+@app.get("/users/", response_model=list[schemas.User],tags=["Users"])
 def read_users(token: str = Depends(authentication.oauth2_scheme) ,skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     # return users
     return users
 
 
+@app.get("/users/{user_id}", response_model=schemas.User,tags=["Users"])
+def read_user( user_id: int,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
 
-@app.get("/users/me")
+
+
+
+@app.get("/users/me",tags=["Users"])
 async def read_users_me(current_user: models.User = Depends(get_current_user)):
     return current_user
 
@@ -121,7 +130,7 @@ async def read_users_me(current_user: models.User = Depends(get_current_user)):
 
 
 
-@app.post("/meeting/CreateMeeting", response_model=schemas.Meeting)
+@app.post("/meeting/CreateMeeting", response_model=schemas.Meeting,tags=["Meeting"])
 def create_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
     responseBody =  crud.create_meeting(db=db, meeting=meeting)
     return responseBody
@@ -134,7 +143,7 @@ def create_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentica
 #*********************
 
 
-@app.post("/conference/CreateConference", response_model=schemas.Conference)
+@app.post("/conference/CreateConference", response_model=schemas.Conference,tags=["Conference"])
 def create_conference( conference: schemas.ConferenceBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
     responseBody =  crud.create_conference(db=db, conference=conference)
     return responseBody
@@ -146,7 +155,7 @@ def create_conference( conference: schemas.ConferenceBase,token: str = Depends(a
 #*********************
 
 
-@app.post("/workshop/CreateWorkshop", response_model=schemas.Workshop)
+@app.post("/workshop/CreateWorkshop", response_model=schemas.Workshop,tags=["Workshop"])
 def create_workshop( workshop: schemas.WorkshopBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
     responseBody =  crud.create_workshop(db=db, workshop=workshop)
     return responseBody
@@ -157,12 +166,6 @@ def create_workshop( workshop: schemas.WorkshopBase,token: str = Depends(authent
 
 
 
-@app.get("/users/{user_id}", response_model=schemas.User)
-def read_user( user_id: int,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
 
 
 @app.post("/users/{user_id}/items/", response_model=schemas.Item)
