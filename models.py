@@ -15,9 +15,14 @@ class User(database.Base):
     contact = Column(String)
     name = Column(String)
     password = Column(String)
-    
     is_active = Column(Boolean, default=True)
-
+    meetingCal = Column(String)
+    eventCal = Column(String)
+    newMeetingsOnHome = Column(Boolean)
+    newMessagesOnHome = Column(Boolean)
+    newMessageNotifications = Column(Boolean)
+    newMeetingNotifications = Column(Boolean)
+    
     items = relationship("Item", back_populates="owner")
     
 
@@ -26,36 +31,50 @@ class Meeting(database.Base):
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
-    date = Column(String )
-    start_time = Column(String)
-    end_time  = Column(String)
-    attendees = Column(ARRAY(Integer))
-    seen = Column(Boolean)
-    
-    
-class Conference(database.Base):
-    __tablename__ = "conferences"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
+    meeting_type = Column(String)
     start_date = Column(String)
     end_date = Column(String)
     start_time = Column(String)
     end_time  = Column(String)
     attendees = Column(ARRAY(Integer))
     seen = Column(Boolean)
+    
 
-class Workshop(database.Base):
-    __tablename__ = "workshops"
+class Event(database.Base):
+    __tablename__ = "events"
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
-    start_date = Column(String)
-    end_date = Column(String)
+    event_type = Column(String)
+    date = Column(String)
     start_time = Column(String)
     end_time  = Column(String)
     attendees = Column(ARRAY(Integer))
-    seen = Column(Boolean)
+    
+    
+# class Conference(database.Base):
+#     __tablename__ = "conferences"
+    
+#     id = Column(Integer, primary_key=True, index=True)
+#     title = Column(String, index=True)
+#     start_date = Column(String)
+#     end_date = Column(String)
+#     start_time = Column(String)
+#     end_time  = Column(String)
+#     attendees = Column(ARRAY(Integer))
+#     seen = Column(Boolean)
+
+# class Workshop(database.Base):
+#     __tablename__ = "workshops"
+    
+#     id = Column(Integer, primary_key=True, index=True)
+#     title = Column(String, index=True)
+#     start_date = Column(String)
+#     end_date = Column(String)
+#     start_time = Column(String)
+#     end_time  = Column(String)
+#     attendees = Column(ARRAY(Integer))
+#     seen = Column(Boolean)
 
 
 class Item(database.Base):

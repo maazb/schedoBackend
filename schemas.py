@@ -4,30 +4,40 @@ from pydantic import BaseModel
 
 class MeetingBase(BaseModel):
     title: str
+    meeting_type: str
+    start_date: str
+    end_date: str
+    start_time: str
+    end_time: str
+    attendees: list[int] = []
+    seen : bool
+    
+class EventBase(BaseModel):
+    title: str
+    event_type: str
     date: str
     start_time: str
     end_time: str
     attendees: list[int] = []
-    seen : bool
     
     
-class ConferenceBase(BaseModel):
-    title: str
-    start_date: str
-    end_date: str
-    start_time: str
-    end_time: str
-    attendees: list[int] = []
-    seen : bool
+# class ConferenceBase(BaseModel):
+#     title: str
+#     start_date: str
+#     end_date: str
+#     start_time: str
+#     end_time: str
+#     attendees: list[int] = []
+#     seen : bool
     
-class WorkshopBase(BaseModel):
-    title: str
-    start_date: str
-    end_date: str
-    start_time: str
-    end_time: str
-    attendees: list[int] = []
-    seen : bool
+# class WorkshopBase(BaseModel):
+#     title: str
+#     start_date: str
+#     end_date: str
+#     start_time: str
+#     end_time: str
+#     attendees: list[int] = []
+#     seen : bool
     
 # class MeetingCreate(MeetingBase):
 #     id:int
@@ -38,17 +48,24 @@ class Meeting(MeetingBase):
     class Config:
         orm_mode = True
         
-class Conference(ConferenceBase):
+        
+class Event(EventBase):
     id:int
     
     class Config:
         orm_mode = True
         
-class Workshop(WorkshopBase):
-    id:int
+# class Conference(ConferenceBase):
+#     id:int
     
-    class Config:
-        orm_mode = True
+#     class Config:
+#         orm_mode = True
+        
+# class Workshop(WorkshopBase):
+#     id:int
+    
+#     class Config:
+#         orm_mode = True
     
     
 
@@ -75,6 +92,12 @@ class UserBase(BaseModel):
     name: str
     email: str
     contact : str
+    meetingCal : str
+    eventCal: str
+    newMeetingsOnHome : bool
+    newMessagesOnHome : bool
+    newMessageNotifications : bool
+    newMeetingNotifications : bool
     
 class Login(BaseModel):
     username: str

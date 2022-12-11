@@ -104,6 +104,16 @@ def read_users(token: str = Depends(authentication.oauth2_scheme) ,skip: int = 0
     # return users
     return users
 
+@app.put("/users/EditUser", response_model=schemas.User,tags=["Users"])
+def edit_user( user: schemas.UserBase,token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+    responseBody =  crud.edit_user(db, user, id)
+    return responseBody
+
+@app.delete("/users/DeleteUser",tags=["Users"])
+def delete_user(token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+    crud.delete_user(db, id)
+    return {"success" : "user deleted"}
+
 
 @app.get("/users/{user_id}", response_model=schemas.User,tags=["Users"])
 def read_user( user_id: int,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):
@@ -136,33 +146,52 @@ def create_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentica
     return responseBody
 
 
+@app.get("/meeting/GetMeetings", response_model=list[schemas.Meeting],tags=["Meeting"])
+def read_meetings(token: str = Depends(authentication.oauth2_scheme) ,date: str = "2022-12-11", db: Session = Depends(get_db)):
+    meetings = crud.get_meetings(db, date)
+    # return meetings
+    return meetings
+
+@app.put("/meeting/EditMeeting", response_model=schemas.Meeting,tags=["Meeting"])
+def edit_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+    responseBody =  crud.edit_meeting(db, meeting, id)
+    return responseBody
+
+@app.delete("/meeting/DeleteMeeting",tags=["Meeting"])
+def delete_meeting(token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+    crud.delete_meeting(db, id)
+    return {"success" : "meeting deleted"}
+
+
 
 
 #*********************
-#Conferences
+#Events
 #*********************
 
 
-@app.post("/conference/CreateConference", response_model=schemas.Conference,tags=["Conference"])
-def create_conference( conference: schemas.ConferenceBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
-    responseBody =  crud.create_conference(db=db, conference=conference)
+
+@app.post("/event/CreateEvent", response_model=schemas.Event,tags=["Event"])
+def create_event( event: schemas.EventBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
+    responseBody =  crud.create_event(db=db, event=event)
     return responseBody
 
 
+@app.get("/event/GetEvents", response_model=list[schemas.Event],tags=["Event"])
+def read_events(token: str = Depends(authentication.oauth2_scheme) ,date: str = "2022-12-11", db: Session = Depends(get_db)):
+    events = crud.get_events(db, date)
+    # return meetings
+    return events
 
-#*********************
-#Workshops
-#*********************
-
-
-@app.post("/workshop/CreateWorkshop", response_model=schemas.Workshop,tags=["Workshop"])
-def create_workshop( workshop: schemas.WorkshopBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
-    responseBody =  crud.create_workshop(db=db, workshop=workshop)
+@app.put("/event/EditEvent", response_model=schemas.Event,tags=["Event"])
+def edit_event( event: schemas.EventBase,token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+    responseBody =  crud.edit_event(db, event, id)
     return responseBody
 
-
-
-
+@app.delete("/event/DeleteEvent",tags=["Event"])
+def delete_event(token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+    crud.delete_event(db, id)
+    return {"success" : "event deleted"}
 
 
 

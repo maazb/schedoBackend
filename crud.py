@@ -1,3 +1,4 @@
+from sqlalchemy import true
 from sqlalchemy.orm import Session
 import json as js
 import models
@@ -17,35 +18,119 @@ def get_user_by_email(db: Session, email: str):
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
-
 def create_user(db: Session, user: schemas.UserCreate):
     passHash = authentication.get_password_hash(user.password)
-    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name)
+    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name, meetingCal = user.meetingCal, eventCal = user.eventCal, newMeetingsOnHome = user.newMeetingsOnHome, newMessagesOnHome = user.newMessagesOnHome, newMessageNotifications = user.newMessageNotifications, newMeetingNotifications = user.newMeetingNotifications)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
+def edit_user(db: Session, user: schemas.UserBase,  id: int = 0,):
+    db_user = db.query(models.User).filter(models.User.id == id).first()
+    if db_user:
+        db_user.name = user.name
+        db_user.email = user.email
+        db_user.contact = user.contact
+        db_user.meetingCal = user.meetingCal
+        db_user.eventCal = user.eventCal
+        db_user.newMeetingsOnHome = user.newMeetingsOnHome
+        db_user.newMessagesOnHome = user.newMessagesOnHome
+        db_user.newMessageNotifications = user.newMessageNotifications
+        db_user.newMeetingNotifications = user.newMeetingNotifications
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def delete_user(db: Session,  id: int = 0,):
+    db_user = db.query(models.User).filter(models.User.id == id).delete()
+    db.commit()
+    return True
+
+
+
+
+
+
+
+
 def create_meeting(db: Session, meeting: schemas.MeetingBase):
-    db_meeting = models.Meeting(title= meeting.title, date = meeting.date, start_time = meeting.start_time, end_time = meeting.end_time,seen = meeting.seen, attendees = meeting.attendees)
+    db_meeting = models.Meeting(title= meeting.title, meeting_type = meeting.meeting_type, start_date = meeting.start_date, end_date = meeting.end_date, start_time = meeting.start_time, end_time = meeting.end_time,seen = meeting.seen, attendees = meeting.attendees)
     db.add(db_meeting)
     db.commit()
     db.refresh(db_meeting)
     return db_meeting
 
-def create_conference(db: Session, conference: schemas.ConferenceBase):
-    db_conference = models.Conference(title= conference.title, start_date = conference.start_date, end_date = conference.end_date, start_time = conference.start_time, end_time = conference.end_time,seen = conference.seen, attendees = conference.attendees)
-    db.add(db_conference)
-    db.commit()
-    db.refresh(db_conference)
-    return db_conference
+def get_meetings(db: Session, date: str = ""):
+    return db.query(models.Meeting).filter(models.Meeting.start_date == date).all()
 
-def create_workshop(db: Session, workshop: schemas.WorkshopBase):
-    db_workshop = models.Workshop(title= workshop.title, start_date = workshop.start_date, end_date = workshop.end_date, start_time = workshop.start_time, end_time = workshop.end_time,seen = workshop.seen, attendees = workshop.attendees)
-    db.add(db_workshop)
+def edit_meeting(db: Session, meeting: schemas.MeetingBase,  id: int = 0,):
+    db_meeting = db.query(models.Meeting).filter(models.Meeting.id == id).first()
+    if db_meeting:
+        db_meeting.title = meeting.title
+        db_meeting.meeting_type = meeting.meeting_type
+        db_meeting.start_date = meeting.start_date
+        db_meeting.end_date = meeting.end_date
+        db_meeting.start_time = meeting.start_time
+        db_meeting.end_time = meeting.end_time
+        db_meeting.seen = meeting.seen
+        db_meeting.attendees = meeting.attendees
     db.commit()
-    db.refresh(db_workshop)
-    return db_workshop
+    db.refresh(db_meeting)
+    return db_meeting
+
+def delete_meeting(db: Session,  id: int = 0,):
+    db_meeting = db.query(models.Meeting).filter(models.Meeting.id == id).delete()
+    db.commit()
+    return True
+
+
+
+
+
+def create_event(db: Session, event: schemas.EventBase):
+    db_event = models.Event(title= event.title, event_type = event.event_type, date = event.date, start_time = event.start_time, end_time = event.end_time, attendees = event.attendees)
+    db.add(db_event)
+    db.commit()
+    db.refresh(db_event)
+    return db_event
+
+def get_events(db: Session, date: str = ""):
+    return db.query(models.Event).filter(models.Event.date == date).all()
+
+def edit_event(db: Session, event: schemas.EventBase,  id: int = 0,):
+    db_event = db.query(models.Event).filter(models.Event.id == id).first()
+    if db_event:
+        db_event.title = event.title
+        db_event.event_type = event.event_type
+        db_event.date = event.date
+        db_event.start_time = event.start_time
+        db_event.end_time = event.end_time
+        db_event.attendees = event.attendees
+    db.commit()
+    db.refresh(db_event)
+    return db_event
+
+def delete_event(db: Session,  id: int = 0,):
+    db_event = db.query(models.Event).filter(models.Event.id == id).delete()
+    db.commit()
+    return True
+
+
+
+# def create_conference(db: Session, conference: schemas.ConferenceBase):
+#     db_conference = models.Conference(title= conference.title, start_date = conference.start_date, end_date = conference.end_date, start_time = conference.start_time, end_time = conference.end_time,seen = conference.seen, attendees = conference.attendees)
+#     db.add(db_conference)
+#     db.commit()
+#     db.refresh(db_conference)
+#     return db_conference
+
+# def create_workshop(db: Session, workshop: schemas.WorkshopBase):
+#     db_workshop = models.Workshop(title= workshop.title, start_date = workshop.start_date, end_date = workshop.end_date, start_time = workshop.start_time, end_time = workshop.end_time,seen = workshop.seen, attendees = workshop.attendees)
+#     db.add(db_workshop)
+#     db.commit()
+#     db.refresh(db_workshop)
+#     return db_workshop
 
 
 def get_items(db: Session, skip: int = 0, limit: int = 100):
