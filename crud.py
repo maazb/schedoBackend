@@ -64,6 +64,9 @@ def create_meeting(db: Session, meeting: schemas.MeetingBase):
 def get_meetings(db: Session, date: str = ""):
     return db.query(models.Meeting).filter(models.Meeting.start_date == date).all()
 
+def get_user_meetings(db: Session, date: str = "", userId: int = 0):
+    return db.query(models.Meeting).where(models.Meeting.start_date == date, models.Meeting.attendees.any(userId)).all()
+
 def edit_meeting(db: Session, meeting: schemas.MeetingBase,  id: int = 0,):
     db_meeting = db.query(models.Meeting).filter(models.Meeting.id == id).first()
     if db_meeting:
@@ -97,6 +100,9 @@ def create_event(db: Session, event: schemas.EventBase):
 
 def get_events(db: Session, date: str = ""):
     return db.query(models.Event).filter(models.Event.date == date).all()
+
+def get_user_events(db: Session, date: str = "", userId: int = 0):
+    return db.query(models.Event).filter(models.Event.date == date, models.Event.attendees.any(userId)).all()
 
 def edit_event(db: Session, event: schemas.EventBase,  id: int = 0,):
     db_event = db.query(models.Event).filter(models.Event.id == id).first()

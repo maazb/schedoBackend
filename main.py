@@ -152,6 +152,14 @@ def read_meetings(token: str = Depends(authentication.oauth2_scheme) ,date: str 
     # return meetings
     return meetings
 
+
+@app.get("/meeting/GetMeetingsByUser", response_model=list[schemas.Meeting],tags=["Meeting"])
+def read_meetings_user(token: str = Depends(authentication.oauth2_scheme) ,date: str = "2022-12-11", userId: int =0, db: Session = Depends(get_db)):
+    meetings = crud.get_user_meetings(db, date, userId)
+    # return meetings
+    return meetings
+
+
 @app.put("/meeting/EditMeeting", response_model=schemas.Meeting,tags=["Meeting"])
 def edit_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
     responseBody =  crud.edit_meeting(db, meeting, id)
@@ -180,6 +188,12 @@ def create_event( event: schemas.EventBase,token: str = Depends(authentication.o
 @app.get("/event/GetEvents", response_model=list[schemas.Event],tags=["Event"])
 def read_events(token: str = Depends(authentication.oauth2_scheme) ,date: str = "2022-12-11", db: Session = Depends(get_db)):
     events = crud.get_events(db, date)
+    # return meetings
+    return events
+
+@app.get("/event/GetEventsByUser", response_model=list[schemas.Event],tags=["Event"])
+def read_events_user(token: str = Depends(authentication.oauth2_scheme) ,date: str = "2022-12-11", userId: int =0, db: Session = Depends(get_db)):
+    events = crud.get_user_events(db, date,userId)
     # return meetings
     return events
 
