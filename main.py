@@ -83,6 +83,7 @@ async def login_for_access_token(form_data: schemas.Login, db: Session = Depends
     "name": user.name,
     "email": user.email,
     "contact": user.contact,
+    "image" : user.image,
     "meetingCal": user.meetingCal,
     "eventCal": user.eventCal,
     "newMeetingsOnHome": user.newMeetingsOnHome,

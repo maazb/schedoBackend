@@ -15,6 +15,7 @@ class User(database.Base):
     contact = Column(String)
     name = Column(String)
     password = Column(String)
+    image = Column(String)
     is_active = Column(Boolean, default=True)
     meetingCal = Column(String)
     eventCal = Column(String)

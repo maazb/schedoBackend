@@ -92,6 +92,7 @@ class UserBase(BaseModel):
     name: str
     email: str
     contact : str
+    image : str
     meetingCal : str
     eventCal: str
     newMeetingsOnHome : bool
