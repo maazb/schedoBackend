@@ -34,11 +34,13 @@ class Meeting(database.Base):
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
+    detail = Column(String)
     meeting_type = Column(String)
     start_date = Column(String)
     end_date = Column(String)
     start_time = Column(String)
     end_time  = Column(String)
+    createdBy = Column(Integer)
     attendees = Column(ARRAY(Integer))
     seen = Column(Boolean)
     
@@ -47,11 +49,13 @@ class Event(database.Base):
     __tablename__ = "events"
     
     id = Column(Integer, primary_key=True, index=True)
+    detail = Column(String)
     title = Column(String, index=True)
     event_type = Column(String)
     date = Column(String)
     start_time = Column(String)
     end_time  = Column(String)
+    createdBy = Column(Integer)
     attendees = Column(ARRAY(Integer))
     
     

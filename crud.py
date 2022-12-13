@@ -58,7 +58,7 @@ def delete_user(db: Session,  id: int = 0,):
 
 
 def create_meeting(db: Session, meeting: schemas.MeetingBase):
-    db_meeting = models.Meeting(title= meeting.title, meeting_type = meeting.meeting_type, start_date = meeting.start_date, end_date = meeting.end_date, start_time = meeting.start_time, end_time = meeting.end_time,seen = meeting.seen, attendees = meeting.attendees)
+    db_meeting = models.Meeting(title= meeting.title, detail= meeting.detail, meeting_type = meeting.meeting_type, start_date = meeting.start_date, end_date = meeting.end_date, start_time = meeting.start_time, end_time = meeting.end_time,seen = meeting.seen, createdBy = meeting.createdBy, attendees = meeting.attendees)
     db.add(db_meeting)
     db.commit()
     db.refresh(db_meeting)
@@ -74,12 +74,14 @@ def edit_meeting(db: Session, meeting: schemas.MeetingBase,  id: int = 0,):
     db_meeting = db.query(models.Meeting).filter(models.Meeting.id == id).first()
     if db_meeting:
         db_meeting.title = meeting.title
+        db_meeting.detail = meeting.detail
         db_meeting.meeting_type = meeting.meeting_type
         db_meeting.start_date = meeting.start_date
         db_meeting.end_date = meeting.end_date
         db_meeting.start_time = meeting.start_time
         db_meeting.end_time = meeting.end_time
         db_meeting.seen = meeting.seen
+        db_meeting.createdBy = meeting.createdBy
         db_meeting.attendees = meeting.attendees
     db.commit()
     db.refresh(db_meeting)
@@ -95,7 +97,7 @@ def delete_meeting(db: Session,  id: int = 0,):
 
 
 def create_event(db: Session, event: schemas.EventBase):
-    db_event = models.Event(title= event.title, event_type = event.event_type, date = event.date, start_time = event.start_time, end_time = event.end_time, attendees = event.attendees)
+    db_event = models.Event(title= event.title, deatil = event.detail, event_type = event.event_type, date = event.date, start_time = event.start_time, end_time = event.end_time, createdBy = event.createdBy, attendees = event.attendees)
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
@@ -111,10 +113,12 @@ def edit_event(db: Session, event: schemas.EventBase,  id: int = 0,):
     db_event = db.query(models.Event).filter(models.Event.id == id).first()
     if db_event:
         db_event.title = event.title
+        db_event.detail = event.detail
         db_event.event_type = event.event_type
         db_event.date = event.date
         db_event.start_time = event.start_time
         db_event.end_time = event.end_time
+        db_event.createdBy = event.createdBy
         db_event.attendees = event.attendees
     db.commit()
     db.refresh(db_event)

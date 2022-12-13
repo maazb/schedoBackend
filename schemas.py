@@ -4,20 +4,24 @@ from pydantic import BaseModel
 
 class MeetingBase(BaseModel):
     title: str
+    detail: str
     meeting_type: str
     start_date: str
     end_date: str
     start_time: str
     end_time: str
+    createdBy: int
     attendees: list[int] = []
     seen : bool
     
 class EventBase(BaseModel):
     title: str
+    detail: str
     event_type: str
     date: str
     start_time: str
     end_time: str
+    createdBy: int
     attendees: list[int] = []
     
     
