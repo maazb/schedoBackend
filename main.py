@@ -66,7 +66,7 @@ async def get_current_active_user(current_user: models.User = Depends(get_curren
 #Users / Login / Auth
 #*********************
 
-@app.post("/token", response_model=authentication.Token,tags=["Users"])
+@app.post("/token",tags=["Users"])
 async def login_for_access_token(form_data: schemas.Login, db: Session = Depends(get_db)):
     user = authenticate_user( form_data.username, form_data.password,db)
     if not user:
@@ -79,7 +79,21 @@ async def login_for_access_token(form_data: schemas.Login, db: Session = Depends
     access_token = authentication.create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "detail": {
+    "name": user.name,
+    "email": user.email,
+    "contact": user.contact,
+    "meetingCal": user.meetingCal,
+    "eventCal": user.eventCal,
+    "newMeetingsOnHome": user.newMeetingsOnHome,
+    "newMessagesOnHome": user.newMessagesOnHome,
+    "newMessageNotifications": user.newMessageNotifications,
+    "newMeetingNotifications": user.newMeetingNotifications,
+    "requested": user.requested,
+    "added": user.added,
+    "id": user.id,
+    "is_active": user.is_active
+} }
 
 
 
