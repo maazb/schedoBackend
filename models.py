@@ -22,6 +22,8 @@ class User(database.Base):
     newMessagesOnHome = Column(Boolean)
     newMessageNotifications = Column(Boolean)
     newMeetingNotifications = Column(Boolean)
+    requested = Column(ARRAY(Integer))
+    added = Column(ARRAY(Integer))
     
     items = relationship("Item", back_populates="owner")
     

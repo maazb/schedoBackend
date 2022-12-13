@@ -20,7 +20,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def create_user(db: Session, user: schemas.UserCreate):
     passHash = authentication.get_password_hash(user.password)
-    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name, meetingCal = user.meetingCal, eventCal = user.eventCal, newMeetingsOnHome = user.newMeetingsOnHome, newMessagesOnHome = user.newMessagesOnHome, newMessageNotifications = user.newMessageNotifications, newMeetingNotifications = user.newMeetingNotifications)
+    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name, meetingCal = user.meetingCal, eventCal = user.eventCal, newMeetingsOnHome = user.newMeetingsOnHome, newMessagesOnHome = user.newMessagesOnHome, newMessageNotifications = user.newMessageNotifications, newMeetingNotifications = user.newMeetingNotifications, requested = user.requested, added = user.added)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -38,6 +38,8 @@ def edit_user(db: Session, user: schemas.UserBase,  id: int = 0,):
         db_user.newMessagesOnHome = user.newMessagesOnHome
         db_user.newMessageNotifications = user.newMessageNotifications
         db_user.newMeetingNotifications = user.newMeetingNotifications
+        db_user.requested = user.requested
+        db_user.added = user.added
     db.commit()
     db.refresh(db_user)
     return db_user

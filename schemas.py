@@ -98,6 +98,8 @@ class UserBase(BaseModel):
     newMessagesOnHome : bool
     newMessageNotifications : bool
     newMeetingNotifications : bool
+    requested: list[int] = []
+    added: list[int] = []
     
 class Login(BaseModel):
     username: str
