@@ -97,7 +97,7 @@ def delete_meeting(db: Session,  id: int = 0,):
 
 
 def create_event(db: Session, event: schemas.EventBase):
-    db_event = models.Event(title= event.title, deatil = event.detail, event_type = event.event_type, date = event.date, start_time = event.start_time, end_time = event.end_time, createdBy = event.createdBy, attendees = event.attendees)
+    db_event = models.Event(title= event.title, detail = event.detail, event_type = event.event_type, date = event.date, start_time = event.start_time, end_time = event.end_time, createdBy = event.createdBy, attendees = event.attendees)
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
