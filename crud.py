@@ -1,9 +1,10 @@
-from sqlalchemy import true
+from sqlalchemy import func, true
 from sqlalchemy.orm import Session
 import json as js
 import models
 import schemas
 import authentication
+from support import checkEmail
 
 
 
@@ -12,11 +13,20 @@ def get_user(db: Session, user_id: int):
 
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+    return db.query(models.User).filter(func.lower(models.User.email) == email.lower()).first()
 
+def get_users_by_name_email(db: Session, query: str):
+    if(checkEmail(query)):
+        return db.query(models.User).filter(func.lower(models.User.email) == query.lower()).all()
+    else:
+        return db.query(models.User).filter(func.lower(models.User.name).contains(query.lower())).all()
+    
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
+
+def get_users_all(db: Session):
+    return db.query(models.User).all()
 
 def create_user(db: Session, user: schemas.UserCreate):
     passHash = authentication.get_password_hash(user.password)
@@ -45,6 +55,14 @@ def edit_user(db: Session, user: schemas.UserBase,  id: int = 0,):
     db.refresh(db_user)
     return db_user
 
+def update_password(db: Session, id: int = 0, newPass: str = "xbcx"):
+    db_user = db.query(models.User).filter(models.User.id == id).first()
+    if db_user:
+        db_user.password = authentication.get_password_hash(newPass)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 def delete_user(db: Session,  id: int = 0,):
     db_user = db.query(models.User).filter(models.User.id == id).delete()
     db.commit()
@@ -58,7 +76,7 @@ def delete_user(db: Session,  id: int = 0,):
 
 
 def create_meeting(db: Session, meeting: schemas.MeetingBase):
-    db_meeting = models.Meeting(title= meeting.title, detail= meeting.detail, meeting_type = meeting.meeting_type, start_date = meeting.start_date, end_date = meeting.end_date, start_time = meeting.start_time, end_time = meeting.end_time,seen = meeting.seen, createdBy = meeting.createdBy, attendees = meeting.attendees)
+    db_meeting = models.Meeting(title= meeting.title, detail= meeting.detail, meeting_type = meeting.meeting_type, start_date = meeting.start_date, end_date = meeting.end_date, start_time = meeting.start_time, end_time = meeting.end_time,seen = meeting.seen, createdBy = meeting.createdBy, link = meeting.link, attendees = meeting.attendees)
     db.add(db_meeting)
     db.commit()
     db.refresh(db_meeting)
@@ -82,6 +100,7 @@ def edit_meeting(db: Session, meeting: schemas.MeetingBase,  id: int = 0,):
         db_meeting.end_time = meeting.end_time
         db_meeting.seen = meeting.seen
         db_meeting.createdBy = meeting.createdBy
+        db_meeting.link = meeting.link
         db_meeting.attendees = meeting.attendees
     db.commit()
     db.refresh(db_meeting)

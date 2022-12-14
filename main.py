@@ -9,6 +9,7 @@ import crud
 import models
 import schemas
 import database
+from support import sendOTP
 
 
 # from .database import SessionLocal, engine
@@ -95,12 +96,57 @@ async def login_for_access_token(form_data: schemas.Login, db: Session = Depends
     "id": user.id,
     "is_active": user.is_active
 } }
+    
+    
+@app.post("/users/UpdatePassword",tags=["Users"])
+async def update_password( form_data: schemas.UpdatePassword, token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):
+    user = authenticate_user( form_data.username, form_data.password,db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_200_OK,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    crud.update_password(db,user.id, form_data.newPassword)
+    
+    return {"success": "password updated"}
+
+
+@app.post("/users/NewPassword",tags=["Users"])
+async def new_password( token: str = Depends(authentication.oauth2_scheme),email: str = "", newPassword: str = "", db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_200_OK,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    crud.update_password(db, user.id, newPassword )
+    
+    return {"success": "password updated"}
+
+
+@app.post("/users/SendOTP",tags=["Users"])
+async def send_otp( token: str = Depends(authentication.oauth2_scheme),email: str = "", db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_200_OK,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    otp= sendOTP(email)
+    
+    return {"otp": otp}
 
 
 
 
 @app.post("/users/CreateUser", response_model=schemas.User,tags=["Users"])
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user( user: schemas.UserCreate,  db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(
@@ -117,6 +163,16 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 def read_users(token: str = Depends(authentication.oauth2_scheme) ,skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     # return users
+    return users
+
+@app.get("/users/Names", response_model=list[schemas.UserShrinked],tags=["Users"])
+def read_user_names(token: str = Depends(authentication.oauth2_scheme) , db: Session = Depends(get_db)):
+    users = crud.get_users_all(db)
+    return users
+
+@app.get("/users/Search", response_model=list[schemas.UserShrinked],tags=["Users"])
+def search_users(token: str = Depends(authentication.oauth2_scheme) , query: str = "", db: Session = Depends(get_db)):
+    users = crud.get_users_by_name_email(db, query)
     return users
 
 @app.put("/users/EditUser", response_model=schemas.User,tags=["Users"])

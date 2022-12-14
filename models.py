@@ -41,6 +41,7 @@ class Meeting(database.Base):
     start_time = Column(String)
     end_time  = Column(String)
     createdBy = Column(Integer)
+    link = Column(String)
     attendees = Column(ARRAY(Integer))
     seen = Column(Boolean)
     

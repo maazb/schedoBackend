@@ -11,6 +11,7 @@ class MeetingBase(BaseModel):
     start_time: str
     end_time: str
     createdBy: int
+    link: str
     attendees: list[int] = []
     seen : bool
     
@@ -90,6 +91,17 @@ class Item(ItemBase):
 
     class Config:
         orm_mode = True
+        
+class UserShrinked(BaseModel):
+    id: int
+    name: str
+    email: str
+    image : str
+    
+    class Config:
+        orm_mode = True
+    
+
 
 
 class UserBase(BaseModel):
@@ -109,6 +121,12 @@ class UserBase(BaseModel):
 class Login(BaseModel):
     username: str
     password: str
+    
+    
+class UpdatePassword(BaseModel):
+    username: str
+    password: str
+    newPassword : str
     
 
 
