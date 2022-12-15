@@ -175,10 +175,20 @@ def search_users(token: str = Depends(authentication.oauth2_scheme) , query: str
     users = crud.get_users_by_name_email(db, query)
     return users
 
+@app.get("/users/Requests", response_model=list[schemas.UserShrinked],tags=["Users"])
+def get_requests(token: str = Depends(authentication.oauth2_scheme) , uId: int = 0, db: Session = Depends(get_db)):
+    users = crud.get_user_requests(db, uId)
+    return users
+
 @app.put("/users/EditUser", response_model=schemas.User,tags=["Users"])
 def edit_user( user: schemas.UserBase,token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
     responseBody =  crud.edit_user(db, user, id)
     return responseBody
+
+# @app.put("/users/sendReq", response_model=schemas.User,tags=["Users"])
+# def send_req(token: str = Depends(authentication.oauth2_scheme), fromId: int =0 , toId: int =0 , db: Session = Depends(get_db)):    
+#     responseBody =  crud.send_req(db, fromId, toId)
+#     return responseBody
 
 @app.delete("/users/DeleteUser",tags=["Users"])
 def delete_user(token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    

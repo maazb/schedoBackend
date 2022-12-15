@@ -1,4 +1,4 @@
-from sqlalchemy import func, true
+from sqlalchemy import ARRAY, Integer, func, true
 from sqlalchemy.orm import Session
 import json as js
 import models
@@ -30,7 +30,7 @@ def get_users_all(db: Session):
 
 def create_user(db: Session, user: schemas.UserCreate):
     passHash = authentication.get_password_hash(user.password)
-    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name, image = user.image, meetingCal = user.meetingCal, eventCal = user.eventCal, newMeetingsOnHome = user.newMeetingsOnHome, newMessagesOnHome = user.newMessagesOnHome, newMessageNotifications = user.newMessageNotifications, newMeetingNotifications = user.newMeetingNotifications, requested = user.requested, added = user.added)
+    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name, image = user.image, meetingCal = user.meetingCal, eventCal = user.eventCal, newMeetingsOnHome = user.newMeetingsOnHome, newMessagesOnHome = user.newMessagesOnHome, newMessageNotifications = user.newMessageNotifications, newMeetingNotifications = user.newMeetingNotifications , requested = user.requested, added = user.added)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -54,6 +54,25 @@ def edit_user(db: Session, user: schemas.UserBase,  id: int = 0,):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def get_user_requests(db: Session, userId: int = 0):
+    return db.query(models.User).where( models.User.requested.any(userId)).all()
+
+# def send_req(db: Session,  fromId: int = 0, toId:  int = 0):
+#     db_user1 = db.query(models.User).filter(models.User.id == fromId).first()
+#     db_user2 = db.query(models.User).filter(models.User.id == toId).first()
+#     requests =  ARRAY(Integer)
+#     requested =  ARRAY(Integer)
+#     if db_user1:
+#         requested =  db_user1.requested
+#         requests.
+    
+#     if db_user2:
+#         requests =  db_user2.requests 
+#     db.commit()
+#     db.refresh(db_user1)
+#     db.refresh(db_user1)
+#     return db_user1
 
 def update_password(db: Session, id: int = 0, newPass: str = "xbcx"):
     db_user = db.query(models.User).filter(models.User.id == id).first()
