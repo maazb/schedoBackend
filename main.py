@@ -17,9 +17,14 @@ from support import sendOTP
 
 models.database.Base.metadata.create_all(bind=database.engine)
 
-init = initializeFB()
+
 
 app = FastAPI()
+
+
+@app.on_event("startup")
+async def startup_event():
+    init = initializeFB()
 
 # Dependency
 def get_db():
