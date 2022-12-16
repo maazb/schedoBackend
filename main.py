@@ -6,6 +6,7 @@ from jose import JWTError, jwt
 
 import authentication
 import crud
+from fcm_admin import event_cancelled, initializeFB, meeting_cancelled, new_event, new_meeting
 import models
 import schemas
 import database
@@ -15,6 +16,8 @@ from support import sendOTP
 # from .database import SessionLocal, engine
 
 models.database.Base.metadata.create_all(bind=database.engine)
+
+init = initializeFB()
 
 app = FastAPI()
 
@@ -230,6 +233,8 @@ async def read_users_me(current_user: models.User = Depends(get_current_user)):
 @app.post("/meeting/CreateMeeting", response_model=schemas.Meeting,tags=["Meeting"])
 def create_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
     responseBody =  crud.create_meeting(db=db, meeting=meeting)
+    tokens = crud.get_users_noti(db,meeting)
+    new_meeting(tokens, meeting.title, meeting.start_date)
     return responseBody
 
 
@@ -253,7 +258,10 @@ def edit_meeting( meeting: schemas.MeetingBase,token: str = Depends(authenticati
     return responseBody
 
 @app.delete("/meeting/DeleteMeeting",tags=["Meeting"])
-def delete_meeting(token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+def delete_meeting(token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):
+    mt =  crud.get_meeting_by_id(db,id)
+    tokens =crud.get_users_noti(db, mt)
+    meeting_cancelled(tokens,mt)    
     crud.delete_meeting(db, id)
     return {"success" : "meeting deleted"}
 
@@ -269,6 +277,8 @@ def delete_meeting(token: str = Depends(authentication.oauth2_scheme), id: int =
 @app.post("/event/CreateEvent", response_model=schemas.Event,tags=["Event"])
 def create_event( event: schemas.EventBase,token: str = Depends(authentication.oauth2_scheme), db: Session = Depends(get_db)):    
     responseBody =  crud.create_event(db=db, event=event)
+    tokens = crud.get_users_noti_event(db,event)
+    new_event(tokens, event.title, event.date)
     return responseBody
 
 
@@ -291,6 +301,9 @@ def edit_event( event: schemas.EventBase,token: str = Depends(authentication.oau
 
 @app.delete("/event/DeleteEvent",tags=["Event"])
 def delete_event(token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
+    mt =  crud.get_event_by_id(db,id)
+    tokens =crud.get_users_noti_event(db, mt)
+    event_cancelled(tokens,mt)   
     crud.delete_event(db, id)
     return {"success" : "event deleted"}
 

@@ -66,6 +66,48 @@ def edit_user(db: Session, user: schemas.UserBase,  id: int = 0,):
 
 def get_user_requests(db: Session, userId: int = 0):
     return db.query(models.User).where( models.User.requested.any(userId)).all()
+def get_meeting_by_id(db: Session, id: int = 0):
+    mt  = db.query(models.Meeting).filter(models.Meeting.id == id).first()
+    
+    return mt
+
+def get_event_by_id(db: Session, id: int = 0):
+    mt  = db.query(models.Event).filter(models.Event.id == id).first()
+    
+    return mt
+
+def get_users_noti(db: Session, meeting):
+    print("attendees: ")
+    print(len(meeting.attendees))
+    db_list = db.query(models.User).where( models.User.id.in_(meeting.attendees)).all()
+    print("dblist: ")
+    print(len(db_list))
+    
+    tokens = []
+    for x in db_list:
+        tokens.append( x.fcmId )
+        
+    print("tokens: ")
+    print(len(tokens))
+    return tokens
+
+
+def get_users_noti_event(db: Session, event):
+    print("attendees: ")
+    print(len(event.attendees))
+    db_list = db.query(models.User).where( models.User.id.in_(event.attendees)).all()
+    print("dblist: ")
+    print(len(db_list))
+    
+    tokens = []
+    for x in db_list:
+        tokens.append( x.fcmId )
+        
+    print("tokens: ")
+    print(len(tokens))
+    return tokens
+        
+    
 
 # def send_req(db: Session,  fromId: int = 0, toId:  int = 0):
 #     db_user1 = db.query(models.User).filter(models.User.id == fromId).first()
