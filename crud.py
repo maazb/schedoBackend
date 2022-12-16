@@ -36,6 +36,14 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+def update_fcmId(db: Session, fcmId: str = "",  id: int = 0,):
+    db_user = db.query(models.User).filter(models.User.id == id).first()
+    if db_user:
+        db_user.fcmId = fcmId
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 def edit_user(db: Session, user: schemas.UserBase,  id: int = 0,):
     db_user = db.query(models.User).filter(models.User.id == id).first()
     if db_user:

@@ -85,6 +85,7 @@ async def login_for_access_token(form_data: schemas.Login, db: Session = Depends
     "email": user.email,
     "contact": user.contact,
     "image" : user.image,
+    "fcmId" : user.fcmId,
     "meetingCal": user.meetingCal,
     "eventCal": user.eventCal,
     "newMeetingsOnHome": user.newMeetingsOnHome,
@@ -183,6 +184,11 @@ def get_requests(token: str = Depends(authentication.oauth2_scheme) , uId: int =
 @app.put("/users/EditUser", response_model=schemas.User,tags=["Users"])
 def edit_user( user: schemas.UserBase,token: str = Depends(authentication.oauth2_scheme), id: int =0 , db: Session = Depends(get_db)):    
     responseBody =  crud.edit_user(db, user, id)
+    return responseBody
+
+@app.put("/users/UpdateFcm", response_model=schemas.User,tags=["Users"])
+def updateFcm(token: str = Depends(authentication.oauth2_scheme),fcmId: str = "", id: int =0 , db: Session = Depends(get_db)):    
+    responseBody =  crud.update_fcmId(db, fcmId, id)
     return responseBody
 
 # @app.put("/users/sendReq", response_model=schemas.User,tags=["Users"])
