@@ -30,7 +30,7 @@ def get_users_all(db: Session):
 
 def create_user(db: Session, user: schemas.UserCreate):
     passHash = authentication.get_password_hash(user.password)
-    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name, image = user.image, meetingCal = user.meetingCal, eventCal = user.eventCal, newMeetingsOnHome = user.newMeetingsOnHome, newMessagesOnHome = user.newMessagesOnHome, newMessageNotifications = user.newMessageNotifications, newMeetingNotifications = user.newMeetingNotifications , requested = user.requested, added = user.added)
+    db_user = models.User(email=user.email,password = passHash,contact = user.contact, name = user.name, image = user.image, fcmId = user.fcmId, meetingCal = user.meetingCal, eventCal = user.eventCal, newMeetingsOnHome = user.newMeetingsOnHome, newMessagesOnHome = user.newMessagesOnHome, newMessageNotifications = user.newMessageNotifications, newMeetingNotifications = user.newMeetingNotifications , requested = user.requested, added = user.added)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -43,6 +43,7 @@ def edit_user(db: Session, user: schemas.UserBase,  id: int = 0,):
         db_user.email = user.email
         db_user.contact = user.contact
         db_user.image = user.image
+        db_user.fcmId = user.fcmId
         db_user.meetingCal = user.meetingCal
         db_user.eventCal = user.eventCal
         db_user.newMeetingsOnHome = user.newMeetingsOnHome

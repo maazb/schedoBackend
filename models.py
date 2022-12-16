@@ -16,6 +16,7 @@ class User(database.Base):
     name = Column(String)
     password = Column(String)
     image = Column(String)
+    fcmId = Column(String)
     is_active = Column(Boolean, default=True)
     meetingCal = Column(String)
     eventCal = Column(String)

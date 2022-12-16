@@ -109,6 +109,7 @@ class UserBase(BaseModel):
     email: str
     contact : str
     image : str
+    fcmId : str
     meetingCal : str
     eventCal: str
     newMeetingsOnHome : bool
