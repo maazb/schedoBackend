@@ -1,4 +1,5 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
+from time import strptime
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -10,7 +11,7 @@ from fcm_admin import event_cancelled, initializeFB, meeting_cancelled, new_even
 import models
 import schemas
 import database
-from support import sendOTP
+from support import checkSlots, checkSlotsEvents, sendOTP
 
 
 # from .database import SessionLocal, engine
@@ -170,6 +171,7 @@ def create_user( user: schemas.UserCreate,  db: Session = Depends(get_db)):
 
 @app.get("/users/", response_model=list[schemas.User],tags=["Users"])
 def read_users(token: str = Depends(authentication.oauth2_scheme) ,skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    
     users = crud.get_users(db, skip=skip, limit=limit)
     # return users
     return users
@@ -242,6 +244,64 @@ def create_meeting( meeting: schemas.MeetingBase,token: str = Depends(authentica
     new_meeting(tokens, meeting.title, meeting.start_date)
     return responseBody
 
+@app.post("/meeting/CreateMeetingAuto",tags=["Meeting"])
+def create_meeting_auto( meeting: schemas.MeetingBase,token: str = Depends(authentication.oauth2_scheme), duration: int =0, db: Session = Depends(get_db)):  
+        
+        
+    # td = timedelta(minutes=duration)
+    commonSlots = checkSlots(db=db,dt=meeting.start_date,pst=meeting.start_time,pet=meeting.end_time,uids=meeting.attendees, min=duration)
+    if not commonSlots:
+        st = datetime.strptime(meeting.start_time,'%Y-%m-%dT%H:%M:%SZ')
+        et = datetime.strptime(meeting.end_time,'%Y-%m-%dT%H:%M:%SZ')
+        st = st.replace(hour=9 , minute= 0)
+        et = et.replace(hour=21 , minute= 0)
+        tst = datetime.strftime(st,'%Y-%m-%dT%H:%M:%SZ')
+        tet = datetime.strftime(et,'%Y-%m-%dT%H:%M:%SZ')
+        recommendedSlots = checkSlots(db=db,dt=meeting.start_date,pst=tst,pet=tet,uids=meeting.attendees,min=duration)
+        print("rec len: ")
+        print(len(recommendedSlots))
+        responseBody = {"status" : False,
+            "recomended" : 
+            recommendedSlots
+        }
+        return responseBody
+        
+    else:
+        s = next(iter(commonSlots))
+        temp = meeting
+        temp.start_time = s[0]
+        temp.end_time = s[1]
+        mt =  crud.create_meeting(db=db, meeting=temp)
+        tokens = crud.get_users_noti(db,meeting)
+        new_meeting(tokens, meeting.title, meeting.start_date)
+        return {"status" : True,
+            "detail" : 
+            {
+                "title": mt.title,
+                "detail": mt.detail,
+                "meeting_type": mt.meeting_type,
+                "start_date": mt.start_date,
+                "end_date": mt.end_date,
+                "start_time": mt.start_time,
+                "end_time": mt.end_time,
+                "createdBy": mt.createdBy,
+                "link": mt.link,
+                "attendees": mt.attendees,
+                "seen": mt.seen,
+                "id": mt.id
+            }
+        }
+        
+    
+    # # for x in commonFreeSlots:
+    # print("Slot selected: ")
+    # print(r)
+    
+    # responseBody =  crud.create_meeting(db=db, meeting=meeting)
+    # tokens = crud.get_users_noti(db,meeting)
+    # new_meeting(tokens, meeting.title, meeting.start_date)
+    # return responseBody
+
 
 @app.get("/meeting/GetMeetings", response_model=list[schemas.Meeting],tags=["Meeting"])
 def read_meetings(token: str = Depends(authentication.oauth2_scheme) ,date: str = "2022-12-11", db: Session = Depends(get_db)):
@@ -285,6 +345,50 @@ def create_event( event: schemas.EventBase,token: str = Depends(authentication.o
     tokens = crud.get_users_noti_event(db,event)
     new_event(tokens, event.title, event.date)
     return responseBody
+
+
+@app.post("/event/CreateEventAuto",tags=["Event"])
+def create_event_auto( event: schemas.EventBase,token: str = Depends(authentication.oauth2_scheme), duration: int = 0, db: Session = Depends(get_db)):  
+    # td = timedelta(minutes=duration)
+    commonSlots = checkSlotsEvents(db=db,dt=event.date,pst=event.start_time,pet=event.end_time,uids=event.attendees, min=duration)
+    if not commonSlots:
+        st = datetime.strptime(event.start_time,'%Y-%m-%dT%H:%M:%SZ')
+        et = datetime.strptime(event.end_time,'%Y-%m-%dT%H:%M:%SZ')
+        st = st.replace(hour=9 , minute= 0)
+        et = et.replace(hour=21 , minute= 0)
+        tst = datetime.strftime(st,'%Y-%m-%dT%H:%M:%SZ')
+        tet = datetime.strftime(et,'%Y-%m-%dT%H:%M:%SZ')
+        recommendedSlots = checkSlotsEvents(db=db,dt=event.date,pst=tst,pet=tet,uids=event.attendees, min=duration)
+        print("rec len: ")
+        print(len(recommendedSlots))
+        responseBody = {"status" : False,
+            "recomended" : 
+            recommendedSlots
+        }
+        return responseBody
+    
+    else:
+        s = next(iter(commonSlots))
+        temp = event
+        temp.start_time = s[0]
+        temp.end_time = s[1]
+        mt =  crud.create_event(db=db, event=temp)
+        tokens = crud.get_users_noti(db,event)
+        new_event(tokens, event.title, event.date)
+        return {"status" : True,
+            "detail" : 
+            {
+                "title": mt.title,
+                "detail": mt.detail,
+                "event_type": mt.event_type,
+                "date": mt.date,
+                "start_time": mt.start_time,
+                "end_time": mt.end_time,
+                "createdBy": mt.createdBy,
+                "attendees": mt.attendees,
+                "id": mt.id
+            }
+        }
 
 
 @app.get("/event/GetEvents", response_model=list[schemas.Event],tags=["Event"])
